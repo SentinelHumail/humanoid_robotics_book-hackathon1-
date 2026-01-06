@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: hackathon1-book-backend
-    runtime: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    name: hackathon1-book-backend-nodejs
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: OPENAI_API_KEY
         sync: false
@@ -12,6 +12,10 @@ services:
       - key: QDRANT_URL
         sync: false
       - key: QDRANT_API_KEY
+        sync: false
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
         value: https://your-username.github.io,http://localhost:3000
