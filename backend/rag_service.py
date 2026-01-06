@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from config import OPENAI_API_KEY, TOGETHER_API_KEY, GROQ_API_KEY
 from openai import OpenAI
@@ -9,6 +10,10 @@ logger = logging.getLogger(__name__)
 
 class RAGService:
     def __init__(self):
+        logger.info(f"Groq API key present: {bool(GROQ_API_KEY)}")
+        logger.info(f"Together API key present: {bool(TOGETHER_API_KEY)}")
+        logger.info(f"OpenAI API key present: {bool(OPENAI_API_KEY)}")
+
         self.openai_client = None
         if OPENAI_API_KEY:
             self.openai_client = OpenAI(api_key=OPENAI_API_KEY)
@@ -31,41 +36,49 @@ class RAGService:
         # Define system message
         system_message = "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Use the provided context to answer questions accurately. If the answer isn't in the context, politely say you don't know."
 
-        # Try Groq first (Option 2)
+        # Try Groq first (Priority 1)
         if GROQ_API_KEY:
+            logger.info("Attempting Groq API...")
             try:
-                logger.info("Attempting to use Groq API")
                 groq_response = self._call_groq_api(prompt, system_message)
                 if groq_response:
                     logger.info("Groq API call successful")
                     return groq_response
             except Exception as e:
-                logger.warning(f"Groq API failed: {str(e)}")
+                logger.warning(f"Groq API failed with error: {str(e)}")
+                logger.info("Groq failed, trying Together AI...")
+        else:
+            logger.info("Groq API key not configured, skipping Groq")
 
-        # Try Together AI next (Option 1)
+        # Try Together AI next (Priority 2)
         if TOGETHER_API_KEY:
+            logger.info("Attempting Together API...")
             try:
-                logger.info("Attempting to use Together API")
                 together_response = self._call_together_api(prompt, system_message)
                 if together_response:
                     logger.info("Together API call successful")
                     return together_response
             except Exception as e:
-                logger.warning(f"Together API failed: {str(e)}")
+                logger.warning(f"Together API failed with error: {str(e)}")
+                logger.info("Together failed, trying OpenAI...")
+        else:
+            logger.info("Together API key not configured, skipping Together")
 
-        # Fallback to OpenAI
+        # Fallback to OpenAI (Priority 3)
         if self.openai_client:
+            logger.info("Attempting OpenAI API...")
             try:
-                logger.info("Falling back to OpenAI API")
                 openai_response = self._call_openai_api(prompt, system_message)
                 if openai_response:
                     logger.info("OpenAI API call successful")
                     return openai_response
             except Exception as e:
-                logger.error(f"All API attempts failed: {str(e)}")
-                raise Exception(f"Unable to generate response from any AI service: {str(e)}")
+                logger.error(f"OpenAI API failed with error: {str(e)}")
+                raise Exception(f"Unable to generate response from any AI service. All attempts failed: Groq, Together, OpenAI")
+        else:
+            logger.info("OpenAI API key not configured")
 
-        raise Exception("No valid API keys configured for AI services")
+        raise Exception("No valid API keys configured for AI services. Please set at least one of: GROQ_API_KEY, TOGETHER_API_KEY, or OPENAI_API_KEY")
 
     def _call_groq_api(self, user_prompt: str, system_message: str) -> Optional[Dict[str, Any]]:
         """Call Groq API for completions"""
