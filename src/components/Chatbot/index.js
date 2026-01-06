@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Send, X, Copy, Bot, User } from 'lucide-react';
 import clsx from 'clsx';
 import styles from './Chatbot.module.css';
@@ -18,6 +18,19 @@ const Chatbot = () => {
 
   // Get the API URL from site config
   const chatbotApiUrl = siteConfig.customFields?.CHATBOT_API_URL || 'http://localhost:8000';
+
+  // Generate and store persistent user_id in localStorage
+  const userId = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      let storedUserId = localStorage.getItem('chatbot_user_id');
+      if (!storedUserId) {
+        storedUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('chatbot_user_id', storedUserId);
+      }
+      return storedUserId;
+    }
+    return 'user_' + Date.now();
+  }, []);
 
   // Check if running in browser environment
   useEffect(() => {
@@ -88,7 +101,7 @@ const Chatbot = () => {
         },
         body: JSON.stringify({
           user_query: inputValue,
-          user_id: 'user_' + Date.now(),
+          user_id: userId,
           selected_text: selectedText || null
         })
       });
