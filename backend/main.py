@@ -6,6 +6,7 @@ from typing import Optional, List, Dict, Any
 
 from database import init_database, save_chat
 from vector_store import QdrantStore
+from rag_service import RAGService
 from config import OPENAI_API_KEY, GITHUB_PAGES_URL, ALLOWED_ORIGINS
 from openai import OpenAI
 
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
     init_database()  # Initialize database tables
     app.state.qdrant_store = QdrantStore()  # Initialize Qdrant store
     app.state.qdrant_store.init_collection()  # Initialize Qdrant collection
+    app.state.rag_service = RAGService()  # Initialize RAG service with alternative AI providers
     yield
     # Shutdown event (if needed)
 
@@ -119,20 +121,14 @@ async def chat_endpoint(request: ChatRequest):
     user_id = request.user_id
     selected_text = request.selected_text
 
-    # Initialize OpenAI client
-    if not OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+    # Search Qdrant for relevant chunks if no selected text
+    if not selected_text:
+        # First, generate an embedding for the user query using OpenAI
+        from openai import OpenAI
+        if not OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
 
-    client = OpenAI(api_key=OPENAI_API_KEY)
-
-    # Prepare the prompt based on whether selected_text is provided
-    if selected_text:
-        # Use selected text as context
-        prompt = f'The user has highlighted the following text from the book: {selected_text}. Based ONLY on this selection, answer the following: {user_query}'
-        sources = [{"source_file": "selected_text", "content": selected_text}]
-    else:
-        # Search Qdrant for relevant chunks
-        # First, generate an embedding for the user query
+        client = OpenAI(api_key=OPENAI_API_KEY)
         query_embedding_response = client.embeddings.create(
             input=user_query,
             model="text-embedding-3-small"
@@ -161,27 +157,20 @@ async def chat_endpoint(request: ChatRequest):
 
         # Combine the context
         context = "\n\n".join(context_parts)
-        prompt = f"Context: {context}\n\nQuestion: {user_query}\n\nBased on the provided context, answer the question accurately. If the answer isn't in the context, politely say you don't know."
+    else:
+        # Use selected text as context
+        context = ""
+        sources = [{"source_file": "selected_text", "content": selected_text}]
 
-    # Make the OpenAI API call
-    response = client.chat.completions.create(
-        model="gpt-4o",  # Using gpt-4o as requested
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Use the provided context to answer questions accurately. If the answer isn't in the context, politely say you don't know."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_tokens=1000,
-        temperature=0.3
+    # Use the RAG service to generate the answer with fallback options
+    rag_service = app.state.rag_service
+    response_data = rag_service.generate_answer(
+        user_query=user_query,
+        context=context,
+        selected_text=selected_text
     )
 
-    # Extract the answer
-    ai_answer = response.choices[0].message.content
+    ai_answer = response_data["answer"]
 
     # Save the chat interaction to the database
     save_chat(user_id, user_query, ai_answer, str([source['source_file'] for source in sources]))
