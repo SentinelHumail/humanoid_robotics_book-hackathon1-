@@ -1,0 +1,42 @@
+---
+title: Term Component Examples
+---
+
+import Term from '@site/src/components/Term';
+
+# Using the Term Component
+
+The `<Term>` component adds hover tooltips for jargon and complex terms. It's perfect for explaining concepts to readers.
+
+## Basic Usage
+
+```jsx
+import Term from '@site/src/components/Term';
+
+// Simple term with definition
+<Term word="PWM" definition="Pulse Width Modulation - a technique for controlling analog devices with digital signals" />
+
+// Custom display text
+<Term word="IMU" definition="Inertial Measurement Unit - measures orientation and acceleration">
+  IMU sensor
+</Term>
+```
+
+## Examples
+
+Here are some examples in action:
+
+- <Term word="PID" definition="Proportional-Integral-Derivative controller - a feedback control loop mechanism" />
+- <Term word="ROS" definition="Robot Operating System - a framework for writing robot software">ROS</Term>
+- <Term word="SLAM" definition="Simultaneous Localization and Mapping - algorithmic problem of constructing a map while tracking the location" />
+
+## Styling
+
+Terms are highlighted with cyan text and a dotted underline. Hover to see the definition in a cyberpunk-styled tooltip.
+
+## Best Practices
+
+1. Use for technical jargon that might confuse readers
+2. Keep definitions concise (1-2 sentences)
+3. Use consistently throughout your documentation
+4. Consider the reading context - don't overuse

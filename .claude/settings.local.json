@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(speckit.plan)",
+      "Bash(powershell:*)",
+      "Bash(git restore:*)",
+      "WebSearch",
+      "Bash(git ls-tree:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

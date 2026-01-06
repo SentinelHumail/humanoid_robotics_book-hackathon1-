@@ -1,0 +1,160 @@
+# Site Configuration Contract
+# This file defines the contract for Docusaurus site configuration
+
+## Core Config
+
+```yaml
+site:
+  name: "Physical AI & Humanoid Robotics"
+  tagline: "Bridging the gap between the digital brain and the physical body"
+  url: "https://your-org.github.io"
+  baseUrl: "/"
+  favicon: "img/favicon.ico"
+  organizationName: "your-org"  # GitHub org/username
+  projectName: "hackathon1-book"  # Repository name
+  trailingSlash: false
+```
+
+## Theme Configuration
+
+```yaml
+themeConfig:
+  # Navigation
+  navbar:
+    logo:
+      alt: "Physical AI Logo"
+      src: "img/logo.svg"
+    items:
+      - to: "/docs/intro"
+        label: "Course"
+        position: "left"
+      - to: "/docs/hardware/requirements"
+        label: "Hardware"
+        position: "left"
+      - to: "/docs/deployment/overview"
+        label: "Deployment"
+        position: "left"
+      - to: "/docs/tutorials/ros2-basics"
+        label: "Tutorials"
+        position: "left"
+      - repoUrl: "https://github.com/your-org/hackathon1-book"
+        label: "GitHub"
+        position: "right"
+
+  # Footer
+  footer:
+    style: "dark"
+    copyright: "Copyright © 2026 Your Organization. Built with Docusaurus."
+
+  # Color mode
+  colorMode:
+    defaultMode: "light"
+    disableSwitch: false
+    respectPrefersColorScheme: true
+
+  # Prism syntax highlighting
+  prism:
+    theme: prismThemes.github
+    darkTheme: prismThemes.dracula
+    additionalLanguages:
+      - python
+      - yaml
+      - bash
+```
+
+## Sidebar Configuration
+
+```yaml
+sidebar:
+  type: "manual"
+  collapsible: true
+  collapsedByDefault: false
+
+  # Structure defined in sidebars.ts
+```
+
+## Accessibility Requirements
+
+```yaml
+accessibility:
+  # WCAG 2.1 AA compliance
+  contrast:
+    light: 4.5  # Minimum ratio
+    dark: 4.5
+  keyboardNav:
+    enabled: true
+  screenReader:
+    enabled: true
+    announcements:
+      - "Page loaded"
+      - "Navigation opened"
+```
+
+## Search Configuration
+
+```yaml
+search:
+  # Docusaurus local search (plugin)
+  plugin:
+    docsRouteBasePath: "/docs"
+    hashed: true
+```
+
+## i18n Configuration
+
+```yaml
+i18n:
+  defaultLocale: "en"
+  locales:
+    - "en"
+  localeConfigs:
+    en:
+      label: "English"
+      direction: "ltr"
+```
+
+## Build Requirements
+
+```yaml
+build:
+  # Success criteria from spec
+  requirements:
+    - "All docs/*.md files must build without errors"
+    - "All links must be valid (no 404s)"
+    - "Code blocks must render with syntax highlighting"
+    - "Mobile layout must render correctly"
+  performance:
+    targetBuildTime: "< 30 seconds"
+    targetPageLoad: "< 2 seconds"
+```
+
+## Deployment Contract
+
+```yaml
+deployment:
+  platform: "GitHub Pages"
+  branch: "gh-pages"
+  buildCommand: "yarn build"
+  publishDir: "build"
+  cname: "physical-ai-course.example.com"  # Optional
+```
+
+## Content Standards Contract
+
+```yaml
+content:
+  # From constitution Principle I: Content-First Documentation
+  requirements:
+    - "Every page must have a clear title (H1)"
+    - "All images must have alt text"
+    - "Code blocks must have language annotations"
+    - "External links should have rel=\"noopener noreferrer\""
+    - "Headings must follow hierarchy (H1 → H2 → H3)"
+
+  # From constitution Principle V: Accessible Content
+  accessibility:
+    - "Alt text for all images"
+    - "Descriptive link text (no 'click here')"
+    - "Color contrast meeting WCAG AA"
+    - "Keyboard-navigable content"
+```

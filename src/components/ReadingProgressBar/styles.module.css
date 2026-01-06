@@ -1,0 +1,49 @@
+.progressContainer {
+  position: fixed;
+  top: var(--ifm-navbar-height);
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 212, 255, 0.1);
+  z-index: 9998;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.progressContainer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.progressBar {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #00D4FF, #6366F1, #00D4FF);
+  background-size: 200% 100%;
+  animation: gradient-shift 3s linear infinite;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.progressText {
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #00D4FF;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}

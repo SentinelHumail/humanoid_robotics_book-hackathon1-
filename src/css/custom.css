@@ -1,30 +1,801 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
+/* Cyberpunk Theme Restore */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
 
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  /* Cyberpunk Palette */
+  --cyber-yellow: #fcee0a;
+  --cyber-purple: #bf00ff;
+  --cyber-cyan: #00f3ff;
+  --cyber-black: #050510;
+  --cyber-dark: #0a0a1a;
+
+  --ifm-color-primary: var(--cyber-yellow);
+  --ifm-color-primary-dark: #e6d800;
+  --ifm-color-primary-darker: #ccbf00;
+  --ifm-color-primary-darkest: #b3a700;
+  --ifm-color-primary-light: #fff233;
+  --ifm-color-primary-lighter: #fff566;
+  --ifm-color-primary-lightest: #fff999;
+
+  --site-bg: var(--cyber-black);
+  --card-bg: rgba(191, 0, 255, 0.05);
+  /* Purple tint */
+  --glass-border: var(--cyber-purple);
+
+  --ifm-font-family-base: 'Rajdhani', sans-serif;
+  --ifm-heading-font-family: 'Orbitron', sans-serif;
+
+  /* Interactive Elements Colors */
+  --callout-info-color: var(--cyber-cyan);
+  --callout-info-bg: rgba(0, 243, 253, 0.05);
+  --callout-warning-color: var(--cyber-yellow);
+  --callout-warning-bg: rgba(252, 238, 10, 0.05);
+  --callout-tip-color: var(--cyber-purple);
+  --callout-tip-bg: rgba(191, 0, 255, 0.05);
+  --callout-key-color: var(--cyber-cyan);
+  --callout-key-bg: rgba(0, 243, 253, 0.1);
+  --callout-danger-color: #ff003c;
+  --callout-danger-bg: rgba(255, 0, 60, 0.05);
+  --card-accent: var(--cyber-cyan);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-background-color: var(--site-bg);
+  --ifm-navbar-background-color: rgba(5, 5, 16, 0.9);
+  --ifm-footer-background-color: #000;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #020205;
+  /* Deep void black */
+  color: #f0f0f0;
+  /* Improved contrast from #e0e0e0 to #f0f0f0 */
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Simulation Grid Floor */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image:
+    linear-gradient(rgba(0, 243, 255, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(191, 0, 255, 0.15) 1px, transparent 1px);
+  background-size: 80px 80px;
+  transform-origin: center top;
+  transform: perspective(500px) rotateX(60deg) translateY(0);
+  animation: simGridMove 20s linear infinite;
+  z-index: -5;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 80%);
+}
+
+/* Ambient Horizon Glow */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+  z-index: -4;
+  pointer-events: none;
+}
+
+/* Floating Particles (Simulated via CSS) */
+html::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle, rgba(0, 243, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle, rgba(191, 0, 255, 0.3) 1px, transparent 1px);
+  background-size: 120px 120px, 90px 90px;
+  background-position: 0 0, 40px 40px;
+  animation: particleDrift 30s linear infinite;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+@keyframes simGridMove {
+  0% {
+    transform: perspective(500px) rotateX(60deg) translateY(0);
+  }
+
+  100% {
+    transform: perspective(500px) rotateX(60deg) translateY(80px);
+  }
+}
+
+@keyframes particleDrift {
+  0% {
+    background-position: 0 0, 40px 40px;
+  }
+
+  100% {
+    background-position: 100px 100px, 140px 140px;
+  }
+}
+
+/* Hero Container - Simulated Deep Space */
+.hero-container {
+  position: relative;
+  background: linear-gradient(135deg, #1a0a2e 0%, #0a0e27 50%, #000000 100%);
+  background-size: 200% 200%;
+  animation: heroGradientMove 15s ease infinite;
+  overflow: hidden;
+  min-height: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes heroGradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 3D Perspective Grid Overlay */
+.hero-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(191, 0, 255, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(500px) rotateX(20deg) scale(1.5);
+  transform-origin: center center;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 80%);
+  pointer-events: none;
+  animation: gridPulse 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes gridPulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Floating Geometric Shapes (Simulated via CSS) */
+.floating-shapes::before,
+.floating-shapes::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(191, 0, 255, 0.2);
+  width: 100px;
+  height: 100px;
+  transform: rotate(45deg);
+  animation: floatRotate 20s linear infinite;
+  pointer-events: none;
+}
+
+.floating-shapes::before {
+  top: 10%;
+  left: 10%;
+  border-radius: 20%;
+}
+
+.floating-shapes::after {
+  bottom: 20%;
+  right: 15%;
+  border-top: 1px solid var(--cyber-cyan);
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  animation-duration: 30s;
+  animation-direction: reverse;
+}
+
+@keyframes floatRotate {
+  0% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+
+  50% {
+    transform: rotate(180deg) translate(20px, -20px);
+  }
+
+  100% {
+    transform: rotate(360deg) translate(0, 0);
+  }
+}
+
+/* Advanced Text Effects */
+.hero-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 1.5rem;
+
+  /* Animated Gradient Text */
+  background: linear-gradient(90deg, var(--cyber-yellow), var(--cyber-cyan), var(--cyber-purple), var(--cyber-yellow));
+  background-size: 300% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGradient 3s linear infinite;
+
+  /* Glow Stack */
+  text-shadow:
+    0 0 10px rgba(252, 238, 10, 0.3),
+    0 0 20px rgba(0, 243, 255, 0.3),
+    0 0 40px rgba(191, 0, 255, 0.3);
+
+  position: relative;
+}
+
+@keyframes textGradient {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Text Glitch on Hover */
+.hero-title:hover {
+  animation: textGradient 3s linear infinite, glitchText 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+}
+
+@keyframes glitchText {
+  0% {
+    transform: translate(0)
+  }
+
+  20% {
+    transform: translate(-2px, 2px)
+  }
+
+  40% {
+    transform: translate(-2px, -2px)
+  }
+
+  60% {
+    transform: translate(2px, 2px)
+  }
+
+  80% {
+    transform: translate(2px, -2px)
+  }
+
+  100% {
+    transform: translate(0)
+  }
+}
+
+/* AAA Button Styles */
+.btn-start {
+  padding: 1.2rem 3rem;
+  background: linear-gradient(90deg, var(--cyber-purple), #000);
+  border: 2px solid transparent;
+  border-image: linear-gradient(45deg, var(--cyber-yellow), var(--cyber-cyan));
+  border-image-slice: 1;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 20px rgba(191, 0, 255, 0.2);
+}
+
+.btn-start:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 30px rgba(191, 0, 255, 0.6),
+    0 0 60px rgba(191, 0, 255, 0.4);
+  background: var(--cyber-purple);
+  text-decoration: none;
+}
+
+.btn-start::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  transform: scale(0);
+  transition: transform 0.6s ease-out;
+}
+
+.btn-start:active::after {
+  transform: scale(1);
+  transition: 0s;
+}
+
+.btn-hardware {
+  padding: 1.2rem 3rem;
+  background: transparent;
+  border: 2px solid var(--cyber-cyan);
+  color: var(--cyber-cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.btn-hardware:hover {
+  background: rgba(0, 243, 255, 0.1);
+  box-shadow: 0 0 20px var(--cyber-cyan);
+  text-decoration: none;
+  animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Pricing Cards */
+/* Hardware Guide */
+.hardware-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.hardware-option {
+  background: rgba(10, 10, 15, 0.6);
+  border: 1px solid #333;
+  padding: 1.5rem;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.hardware-option.featured {
+  border-color: var(--cyber-yellow);
+  background: rgba(252, 238, 10, 0.05);
+  transform: scale(1.02);
+}
+
+.hardware-option:hover {
+  border-color: var(--cyber-cyan);
+  background: rgba(10, 10, 15, 0.9);
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.option-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.option-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  background: #333;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.option-tag.recommended {
+  background: var(--cyber-yellow);
+  color: #000;
+  font-weight: bold;
+}
+
+.option-desc {
+  font-size: 0.9rem;
+  color: #ccc;
+  /* Improved contrast from #aaa to #ccc */
+  margin-bottom: 1.5rem;
+  min-height: 60px;
+}
+
+.spec-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.spec-list li {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.25rem;
+}
+
+.buy-links {
+  font-size: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.text-link {
+  color: var(--cyber-cyan);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.text-link:hover {
+  color: var(--cyber-yellow);
+  text-decoration: underline;
+}
+
+/* Navbar Styles */
+.navbar {
+  background: linear-gradient(90deg, #0a0a0f 0%, #1a0a2e 100%);
+  border-bottom: 2px solid var(--cyber-purple);
+  box-shadow: 0 4px 20px rgba(191, 0, 255, 0.2);
+}
+
+.navbar__title {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(to right, #fff, var(--cyber-cyan));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  font-weight: 900;
+}
+
+/* Navbar Scanline Overlay (Pseudo-element on navbar) */
+.navbar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.3) 51%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0.2;
+  z-index: 1;
+}
+
+/* GitHub Button Glow */
+.navbar__item.navbar__link[href*="github.com"] {
+  position: relative;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+
+.navbar__item.navbar__link[href*="github.com"]:hover {
+  border-color: var(--cyber-cyan);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+  background: rgba(0, 243, 255, 0.1);
+  color: var(--cyber-cyan);
+  animation: neonPulse 1.5s infinite alternate;
+}
+
+@keyframes neonPulse {
+  from {
+    box-shadow: 0 0 5px rgba(0, 243, 255, 0.4);
+  }
+
+  to {
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.8), 0 0 10px var(--cyber-purple);
+  }
+}
+
+.hero-section {
+  background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+}
+
+/* Sidebar Styling */
+.theme-doc-sidebar-container {
+  background: rgba(10, 10, 15, 0.95) !important;
+  border-right: 1px solid var(--cyber-purple);
+}
+
+.theme-doc-sidebar-item-link {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid transparent;
+  margin-bottom: 4px;
+}
+
+.theme-doc-sidebar-item-link:hover {
+  background: rgba(168, 85, 247, 0.1);
+  border-left-color: var(--cyber-cyan);
+  transform: translateX(5px);
+  color: var(--cyber-cyan) !important;
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+}
+
+.theme-doc-sidebar-item-link[aria-current='page'],
+.menu__link--active {
+  background: linear-gradient(90deg, rgba(191, 0, 255, 0.2) 0%, transparent 100%);
+  border-left-color: var(--cyber-purple) !important;
+  color: var(--cyber-yellow) !important;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(252, 238, 10, 0.5);
+}
+
+/* Sidebar Category Header */
+.menu__list-item-collapsible {
+  transition: color 0.3s;
+}
+
+.menu__list-item-collapsible:hover {
+  color: var(--cyber-cyan);
+}
+
+.menu__link--sublist {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  color: #ccc;
+}
+
+.menu__link--sublist::after {
+  /* Custom carets could go here, but Docusaurus handles rotation well */
+}
+
+/* Table of Contents (Right Sidebar) */
+.table-of-contents__link {
+  color: #ccc;
+  /* Better default contrast */
+}
+
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--cyber-cyan);
+  text-shadow: 0 0 5px var(--cyber-cyan);
+  padding-left: 5px;
+  /* Slight nudge */
+  transition: all 0.2s;
+}
+
+.table-of-contents__link--active {
+  border-left: 2px solid var(--cyber-yellow);
+  padding-left: 10px;
+}
+
+
+/* MDX Component Styles */
+
+/* Cyber Table */
+.cyber-table-container {
+  overflow-x: auto;
+  margin: 2rem 0;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid var(--cyber-purple);
+}
+
+.cyber-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0a0a1a;
+  color: #fff;
+}
+
+.cyber-table th {
+  background: rgba(191, 0, 255, 0.2);
+  color: var(--cyber-yellow);
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  padding: 1rem;
+  border-bottom: 2px solid var(--cyber-cyan);
+  text-align: left;
+}
+
+.cyber-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(191, 0, 255, 0.1);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+}
+
+.cyber-table tr:hover td {
+  background: rgba(252, 238, 10, 0.05);
+  color: var(--cyber-cyan);
+}
+
+/* Cyber Header Glitch */
+.cyber-header {
+  position: relative;
+  display: inline-block;
+}
+
+/* Cyber Card */
+.cyber-card {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid var(--cyber-cyan);
+  border-left: 4px solid var(--cyber-yellow);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 12px 12px 0;
+  transition: transform 0.2s;
+}
+
+.cyber-card:hover {
+  transform: translateX(10px);
+  box-shadow: -5px 0 15px rgba(252, 238, 10, 0.2);
+}
+
+/* Cyberpunk Tabloids */
+.tabloid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 4rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cyber-tabloid {
+  position: relative;
+  background: rgba(10, 10, 15, 0.9);
+  border: 1px solid #333;
+  clip-path: polygon(0 0,
+      100% 0,
+      100% calc(100% - 30px),
+      calc(100% - 30px) 100%,
+      0 100%);
+  padding: 2rem;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+  text-decoration: none !important;
+  color: #fff !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
+}
+
+.cyber-tabloid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--cyber-yellow);
+  transition: height 0.3s;
+}
+
+.cyber-tabloid:hover {
+  transform: translateY(-5px);
+  background: var(--cyber-yellow);
+  color: #000 !important;
+  box-shadow:
+    5px 5px 0 var(--cyber-purple),
+    -5px -5px 0 var(--cyber-cyan);
+}
+
+.cyber-tabloid:hover::before {
+  background: #000;
+}
+
+.cyber-tabloid:hover h3,
+.cyber-tabloid:hover li,
+.cyber-tabloid:hover .tabloid-icon {
+  color: #000;
+  text-shadow: none;
+}
+
+.tabloid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px dashed #444;
+  padding-bottom: 1rem;
+}
+
+.cyber-tabloid:hover .tabloid-header {
+  border-bottom-color: #000;
+}
+
+.tabloid-number {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  opacity: 0.3;
+}
+
+.tabloid-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tabloid-content li {
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+  position: relative;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.tabloid-content li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--cyber-yellow);
+  font-weight: bold;
+}
+
+.cyber-tabloid:hover .tabloid-content li::before {
+  color: #000;
+}
+
+.tabloid-status {
+  margin-top: auto;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  text-align: right;
+  opacity: 0.7;
+  letter-spacing: 2px;
 }
