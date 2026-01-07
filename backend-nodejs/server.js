@@ -9,7 +9,7 @@ const Groq = require('groq-sdk');
 const { OpenAI } = require('openai');
 
 // Import Qdrant
-const { QdrantClient } = require('qdrant-client');
+const { QdrantClient } = require('@qdrant/js-client-rest');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -65,7 +65,8 @@ let embeddingClient = null;
 // Initialize Groq client for completions
 if (process.env.GROQ_API_KEY) {
   groqClient = new Groq({
-    apiKey: process.env.GROQ_API_KEY
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1"
   });
 } else {
   console.warn('Warning: GROQ_API_KEY not set');
