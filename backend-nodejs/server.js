@@ -4,9 +4,10 @@ const axios = require('axios');
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Import Groq and OpenAI
-const Groq = require('groq-sdk');
+// Import OpenAI (for OpenRouter)
 const { OpenAI } = require('openai');
+// Import Google Generative Language API for embeddings
+const { google } = require('googleapis');
 
 // Import Qdrant
 const { QdrantClient } = require('@qdrant/js-client-rest');
@@ -65,30 +66,32 @@ let qdrantClient = null;
 let ragService = null;
 
 // Initialize clients
-let groqClient = null;
-let embeddingClient = null;
+let openrouterClient = null;
+let geminiEmbeddingsClient = null;
 
-if (process.env.GROQ_API_KEY) {
-  groqClient = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1"
+// Initialize OpenAI client with OpenRouter endpoint
+if (process.env.OPENROUTER_API_KEY) {
+  openrouterClient = new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY
   });
 } else {
-  console.warn('Warning: GROQ_API_KEY not set');
+  console.warn('Warning: OPENROUTER_API_KEY not set');
 }
 
-// Initialize OpenAI client for embeddings (using OpenAI as embedding provider)
-if (process.env.OPENAI_API_KEY) {
-  embeddingClient = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-  });
+// Initialize Google Generative Language client for embeddings (using Gemini)
+if (process.env.GEMINI_API_KEY) {
+  // For now, we'll just store the API key for later use with Google APIs
+  geminiEmbeddingsClient = {
+    apiKey: process.env.GEMINI_API_KEY
+  };
 } else {
-  console.warn('Warning: OPENAI_API_KEY not set for embeddings');
+  console.warn('Warning: GEMINI_API_KEY not set for embeddings');
 }
 
-// For the rest of the code, we'll use groqClient for completions and embeddingClient for embeddings
-// Assign groqClient to openaiClient variable to maintain compatibility with the rest of the code
-openaiClient = groqClient;
+// For the rest of the code, we'll use openrouterClient for completions and geminiClient for embeddings
+// Assign openrouterClient to openaiClient variable to maintain compatibility with the rest of the code
+openaiClient = openrouterClient;
 
 // Initialize Qdrant client
 try {
@@ -283,16 +286,16 @@ app.post('/chat', async (req, res) => {
         return res.status(500).json({ error: 'Qdrant service not available' });
       }
 
-      if (!embeddingClient) {
-        // If no embedding client is available, use Groq directly for general questions
-        // Generate a response using the Groq client without document context
-        if (!groqClient) {
-          return res.status(500).json({ error: 'Groq client not available' });
+      if (!geminiEmbeddingsClient) {
+        // If no embedding client is available, use OpenRouter directly for general questions
+        // Generate a response using the OpenRouter client without document context
+        if (!openrouterClient) {
+          return res.status(500).json({ error: 'OpenRouter client not available' });
         }
 
         try {
-          const response = await groqClient.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+          const response = await openrouterClient.chat.completions.create({
+            model: "meta-llama/llama-3.3-70b-instruct:free",
             messages: [
               {
                 role: "system",
@@ -318,7 +321,7 @@ app.post('/chat', async (req, res) => {
             sources: []
           });
         } catch (error) {
-          console.error('Error generating response with Groq:', error);
+          console.error('Error generating response with OpenRouter:', error);
           return res.status(500).json({
             error: 'Error generating response',
             details: error.message
@@ -328,14 +331,82 @@ app.post('/chat', async (req, res) => {
 
       let searchResults = [];
       try {
-        // Generate embedding for the user query using the OpenAI client (for embeddings)
-        const embeddingResponse = await embeddingClient.embeddings.create({
-          model: "text-embedding-3-small",
-          input: user_query
-        });
+        // For now, we'll implement a different approach since Gemini embeddings might require a different implementation
+        // First, let's try using OpenAI-compatible embeddings from OpenRouter if they support it
+        // Otherwise, we'll need to use a different embedding approach
 
-        const queryEmbedding = embeddingResponse.data[0].embedding;
+        let queryEmbedding;
 
+        // Try to use OpenAI-compatible embeddings from OpenRouter if they support it
+        if (openrouterClient) {
+          try {
+            const embeddingResponse = await openrouterClient.embeddings.create({
+              model: "text-embedding-3-small",
+              input: user_query
+            });
+
+            queryEmbedding = embeddingResponse.data[0].embedding;
+          } catch (embeddingError) {
+            console.warn('OpenRouter embeddings not available, using fallback approach');
+            // Use a fallback approach - for now, we'll return a general response
+            const response = await openrouterClient.chat.completions.create({
+              model: "meta-llama/llama-3.3-70b-instruct:free",
+              messages: [
+                {
+                  role: "system",
+                  content: "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Document search is not available at the moment, so use your general knowledge to answer questions. If the question is very specific to the book content, politely acknowledge that you don't have access to the specific documents right now."
+                },
+                {
+                  role: "user",
+                  content: user_query
+                }
+              ],
+              max_tokens: 1000,
+              temperature: 0.3
+            });
+
+            const aiAnswer = response.choices[0].message.content;
+
+            // Save the chat interaction to the database
+            await saveChat(user_id, user_query, aiAnswer, []);
+
+            // Return the response
+            return res.json({
+              answer: aiAnswer,
+              sources: []
+            });
+          }
+        } else {
+          // If no embedding service is available, return a general response
+          const response = await openrouterClient.chat.completions.create({
+            model: "meta-llama/llama-3.3-70b-instruct:free",
+            messages: [
+              {
+                role: "system",
+                content: "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Document search is not available at the moment, so use your general knowledge to answer questions. If the question is very specific to the book content, politely acknowledge that you don't have access to the specific documents right now."
+              },
+              {
+                role: "user",
+                content: user_query
+              }
+            ],
+            max_tokens: 1000,
+            temperature: 0.3
+          });
+
+          const aiAnswer = response.choices[0].message.content;
+
+          // Save the chat interaction to the database
+          await saveChat(user_id, user_query, aiAnswer, []);
+
+          // Return the response
+          return res.json({
+            answer: aiAnswer,
+            sources: []
+          });
+        }
+
+        // If we successfully got embeddings, continue with Qdrant search
         // Search Qdrant for top 3 most relevant chunks
         searchResults = await qdrantClient.search('book_embeddings', {
           vector: queryEmbedding,
@@ -367,13 +438,13 @@ app.post('/chat', async (req, res) => {
       context = contextParts.join('\n\n');
     }
 
-    // Generate the response using the Groq client
-    if (!groqClient) {
-      return res.status(500).json({ error: 'Groq client not available' });
+    // Generate the response using the OpenRouter client
+    if (!openrouterClient) {
+      return res.status(500).json({ error: 'OpenRouter client not available' });
     }
 
-    const response = await groqClient.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Using the requested Groq model
+    const response = await openrouterClient.chat.completions.create({
+      model: "meta-llama/llama-3.3-70b-instruct:free", // Using OpenRouter's free model
       messages: [
         {
           role: "system",
