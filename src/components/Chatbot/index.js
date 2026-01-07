@@ -93,8 +93,11 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
+      // Construct the full API URL for the chat endpoint
+      const fullApiUrl = chatbotApiUrl.endsWith('/') ? `${chatbotApiUrl}chat` : `${chatbotApiUrl}/chat`;
+
       // Add the selected text if available
-      const response = await fetch(`${chatbotApiUrl}/chat`, {
+      const response = await fetch(fullApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
