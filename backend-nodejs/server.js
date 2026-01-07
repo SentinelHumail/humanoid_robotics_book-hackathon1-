@@ -283,7 +283,12 @@ app.post('/chat', async (req, res) => {
       }
 
       if (!embeddingClient) {
-        return res.status(500).json({ error: 'Embedding service not available' });
+        // If no embedding client is available, return a contextual response without search
+        const fallbackResponse = {
+          answer: "I'm sorry, but I don't have access to the document embeddings right now. Please make sure the OPENAI_API_KEY environment variable is set for embeddings. You can still ask general questions, but I won't be able to reference specific documents.",
+          sources: []
+        };
+        return res.json(fallbackResponse);
       }
 
       try {
