@@ -54,7 +54,7 @@ let openaiClient = null;
 let qdrantClient = null;
 let ragService = null;
 
-// Initialize OpenAI client with Groq's OpenAI-compatible endpoint
+// Initialize OpenAI client with Groq's OpenAI-compatible endpoint (effectively a Groq client)
 if (process.env.GROQ_API_KEY) {
   openaiClient = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1",
@@ -244,7 +244,7 @@ app.post('/chat', async (req, res) => {
     if (!selected_text) {
       // Search Qdrant for relevant chunks
       if (!qdrantClient || !openaiClient) {
-        return res.status(500).json({ error: 'Required services (Qdrant/OpenAI) not available' });
+        return res.status(500).json({ error: 'Required services (Qdrant/Groq) not available' });
       }
 
       // Generate embedding for the user query using the OpenAI client (configured for Groq)
@@ -287,7 +287,7 @@ app.post('/chat', async (req, res) => {
 
     // Generate the response using the OpenAI client (configured for Groq)
     if (!openaiClient) {
-      return res.status(500).json({ error: 'OpenAI client not available' });
+      return res.status(500).json({ error: 'Groq client not available' });
     }
 
     const response = await openaiClient.chat.completions.create({
