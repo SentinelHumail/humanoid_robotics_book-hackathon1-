@@ -68,7 +68,6 @@ let ragService = null;
 let groqClient = null;
 let embeddingClient = null;
 
-// Initialize Groq client for completions
 if (process.env.GROQ_API_KEY) {
   groqClient = new Groq({
     apiKey: process.env.GROQ_API_KEY,
@@ -285,7 +284,6 @@ app.post('/chat', async (req, res) => {
       }
 
       if (!embeddingClient) {
-        // ... (existing logic for general knowledge) ...
         // If no embedding client is available, use Groq directly for general questions
         // Generate a response using the Groq client without document context
         if (!groqClient) {
