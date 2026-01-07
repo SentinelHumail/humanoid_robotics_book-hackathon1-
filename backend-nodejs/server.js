@@ -30,18 +30,23 @@ const defaultOrigins = [
   'https://127.0.0.1:3000',
   'https://127.0.0.1:8080',
   'https://localhost:3000',
-  'https://localhost:8080',
-  'https://SentinelHumail.github.io',  // Add the GitHub Pages URL
-  'https://sentinelhumail.github.io'   // Also add lowercase version
+  'https://localhost:8080'
 ];
 
-const allOrigins = [...new Set([...allowedOrigins, ...defaultOrigins])];
+// Add GitHub Pages domains to the allowed origins
+const githubPagesOrigins = [
+  'https://SentinelHumail.github.io',
+  'https://sentinelhumail.github.io'
+];
+
+const allOrigins = [...new Set([...allowedOrigins, ...defaultOrigins, ...githubPagesOrigins])];
 
 app.use(cors({
   origin: allOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],  // Add required methods
-  allowedHeaders: ['Content-Type']      // Add required headers
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Add authorization header as well
+  optionsSuccessStatus: 200  // Some legacy browsers (IE11, various SmartTVs) choke on 204
 }));
 
 // Initialize clients
