@@ -16,7 +16,7 @@ const config: Config = {
   onBrokenLinks: 'warn',
 
   customFields: {
-    CHATBOT_API_URL: process.env.DOCUSAURUS_PUBLIC_API_URL || 'http://localhost:8000',
+    CHATBOT_API_URL: process.env.DOCUSAURUS_PUBLIC_API_URL || 'https://humanoid-robotics-book-hackathon1.onrender.com',
   },
 
 
