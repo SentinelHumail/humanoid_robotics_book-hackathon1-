@@ -12,7 +12,13 @@ const { OpenAI } = require('openai');
 const { QdrantClient } = require('@qdrant/js-client-rest');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 10000;  // Force port 10000
+
+// Global logging middleware - logs every incoming request
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 
 // Middleware
 app.use(express.json());
@@ -366,9 +372,15 @@ app.get('/test', (req, res) => {
   res.send('Backend is reachable');
 });
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on 0.0.0.0:${PORT}`);
+// Start server - force port 10000 and bind to 0.0.0.0
+app.listen(process.env.PORT || 10000, '0.0.0.0', () => {
+  console.log(`Server running on 0.0.0.0:${process.env.PORT || 10000}`);
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('SERVER CRASH:', err.stack);
+  res.status(500).json({ error: 'Server Crash', detail: err.message });
 });
 
 module.exports = app;
