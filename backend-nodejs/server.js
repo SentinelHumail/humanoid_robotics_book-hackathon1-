@@ -283,12 +283,46 @@ app.post('/chat', async (req, res) => {
       }
 
       if (!embeddingClient) {
-        // If no embedding client is available, return a contextual response without search
-        const fallbackResponse = {
-          answer: "I'm sorry, but I don't have access to the document embeddings right now. Please make sure the OPENAI_API_KEY environment variable is set for embeddings. You can still ask general questions, but I won't be able to reference specific documents.",
-          sources: []
-        };
-        return res.json(fallbackResponse);
+        // If no embedding client is available, use Groq directly for general questions
+        // Generate a response using the Groq client without document context
+        if (!groqClient) {
+          return res.status(500).json({ error: 'Groq client not available' });
+        }
+
+        try {
+          const response = await groqClient.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "system",
+                content: "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Since document embeddings are not available, use your general knowledge to answer questions. If the question is very specific to the book content, politely acknowledge that you don't have access to the specific documents right now."
+              },
+              {
+                role: "user",
+                content: user_query
+              }
+            ],
+            max_tokens: 1000,
+            temperature: 0.3
+          });
+
+          const aiAnswer = response.choices[0].message.content;
+
+          // Save the chat interaction to the database
+          await saveChat(user_id, user_query, aiAnswer, []);
+
+          // Return the response
+          return res.json({
+            answer: aiAnswer,
+            sources: []
+          });
+        } catch (error) {
+          console.error('Error generating response with Groq:', error);
+          return res.status(500).json({
+            error: 'Error generating response',
+            details: error.message
+          });
+        }
       }
 
       try {
