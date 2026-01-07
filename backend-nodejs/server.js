@@ -33,14 +33,18 @@ const defaultOrigins = [
   'https://127.0.0.1:3000',
   'https://127.0.0.1:8080',
   'https://localhost:3000',
-  'https://localhost:8080'
+  'https://localhost:8080',
+  'https://SentinelHumail.github.io',  // Add the GitHub Pages URL
+  'https://sentinelhumail.github.io'   // Also add lowercase version
 ];
 
 const allOrigins = [...new Set([...allowedOrigins, ...defaultOrigins])];
 
 app.use(cors({
   origin: allOrigins,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],  // Add required methods
+  allowedHeaders: ['Content-Type']      // Add required headers
 }));
 
 // Initialize clients

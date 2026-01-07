@@ -96,6 +96,8 @@ const Chatbot = () => {
       // Construct the full API URL for the chat endpoint
       const fullApiUrl = chatbotApiUrl.endsWith('/') ? `${chatbotApiUrl}chat` : `${chatbotApiUrl}/chat`;
 
+      console.log('Attempting to connect to:', fullApiUrl); // Debug log
+
       // Add the selected text if available
       const response = await fetch(fullApiUrl, {
         method: 'POST',
@@ -109,8 +111,10 @@ const Chatbot = () => {
         })
       });
 
+      console.log('Response received:', response.status); // Debug log
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -130,10 +134,11 @@ const Chatbot = () => {
       setShowSelectionBadge(false);
     } catch (error) {
       console.error('Error sending message:', error);
+      console.error('Full error details:', error.message, error.stack); // Additional debug info
 
       const errorMessage = {
         id: Date.now() + 1,
-        text: 'Error: Could not connect to the chat service. Please check if the backend is running.',
+        text: `Error: Could not connect to the chat service. ${error.message || 'Please check if the backend is running.'}`,
         sender: 'bot',
         error: true,
         timestamp: new Date()
