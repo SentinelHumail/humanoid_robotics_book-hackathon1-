@@ -18,7 +18,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: https://your-username.github.io,http://localhost:3000
+        value: https://sentinelhumail.github.io,https://SentinelHumail.github.io,http://localhost:3000
     region: oregon  # or your preferred region
     plan: free  # or 'starter' for more resources
     branch: main
