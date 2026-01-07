@@ -276,13 +276,16 @@ app.post('/chat', async (req, res) => {
     let context = "";
     let sources = [];
 
-    if (!selected_text) {
+    if (selected_text) {
+      context = selected_text;
+    } else if (user_query) {
       // Search Qdrant for relevant chunks
       if (!qdrantClient) {
         return res.status(500).json({ error: 'Qdrant service not available' });
       }
 
       if (!embeddingClient) {
+        // ... (existing logic for general knowledge) ...
         // If no embedding client is available, use Groq directly for general questions
         // Generate a response using the Groq client without document context
         if (!groqClient) {
@@ -325,6 +328,7 @@ app.post('/chat', async (req, res) => {
         }
       }
 
+      let searchResults = [];
       try {
         // Generate embedding for the user query using the OpenAI client (for embeddings)
         const embeddingResponse = await embeddingClient.embeddings.create({
@@ -335,7 +339,7 @@ app.post('/chat', async (req, res) => {
         const queryEmbedding = embeddingResponse.data[0].embedding;
 
         // Search Qdrant for top 3 most relevant chunks
-        const searchResults = await qdrantClient.search('book_embeddings', {
+        searchResults = await qdrantClient.search('book_embeddings', {
           vector: queryEmbedding,
           limit: 3,
           with_payload: true
@@ -366,11 +370,11 @@ app.post('/chat', async (req, res) => {
     }
 
     // Generate the response using the Groq client
-    if (!openaiClient) {
+    if (!groqClient) {
       return res.status(500).json({ error: 'Groq client not available' });
     }
 
-    const response = await openaiClient.chat.completions.create({
+    const response = await groqClient.chat.completions.create({
       model: "llama-3.3-70b-versatile", // Using the requested Groq model
       messages: [
         {
@@ -379,7 +383,7 @@ app.post('/chat', async (req, res) => {
         },
         {
           role: "user",
-          content: context
+          content: `Context:\n${context}\n\nQuestion: ${user_query}`
         }
       ],
       max_tokens: 1000,
