@@ -7,8 +7,8 @@ const config: Config = {
   tagline: 'Bridging the gap between the digital brain and the physical body',
   favicon: 'img/favicon.ico',
 
-  url: 'https://your-org.github.io',
-  baseUrl: '/',
+  url: 'https://SentinelHumail.github.io',
+  baseUrl: '/humanoid_robotics_book-hackathon1-/',
 
   organizationName: 'your-org',
   projectName: 'hackathon1-book',
