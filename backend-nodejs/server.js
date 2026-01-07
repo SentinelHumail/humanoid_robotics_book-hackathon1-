@@ -4,14 +4,11 @@ const axios = require('axios');
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Import Groq
-const Groq = require('groq-sdk');
+// Import OpenAI (but configure it to use Groq's OpenAI-compatible endpoint)
+const { OpenAI } = require('openai');
 
 // Import Qdrant
 const { QdrantClient } = require('qdrant-client');
-
-// Import RAG Service
-const RAGService = require('./services/ragService');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -48,13 +45,16 @@ app.use(cors({
 }));
 
 // Initialize clients
-let groqClient = null;
+let openaiClient = null;
 let qdrantClient = null;
 let ragService = null;
 
-// Initialize Groq client
+// Initialize OpenAI client with Groq's OpenAI-compatible endpoint
 if (process.env.GROQ_API_KEY) {
-  groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  openaiClient = new OpenAI({
+    baseURL: "https://api.groq.com/openai/v1",
+    apiKey: process.env.GROQ_API_KEY
+  });
 } else {
   console.warn('Warning: GROQ_API_KEY not set');
 }
@@ -151,7 +151,6 @@ async function initQdrant() {
 async function initializeServices() {
   await initDatabase();
   await initQdrant();
-  ragService = new RAGService(); // Initialize the RAG service
   console.log('All services initialized');
 }
 
@@ -239,21 +238,12 @@ app.post('/chat', async (req, res) => {
 
     if (!selected_text) {
       // Search Qdrant for relevant chunks
-      if (!qdrantClient) {
-        return res.status(500).json({ error: 'Qdrant service not available' });
+      if (!qdrantClient || !openaiClient) {
+        return res.status(500).json({ error: 'Required services (Qdrant/OpenAI) not available' });
       }
 
-      // Since we need embeddings to search Qdrant, we'll use OpenAI for embeddings only
-      // Install and use OpenAI just for embeddings
-      const { OpenAI } = require('openai');
-      let tempOpenAIClient;
-      if (process.env.OPENAI_API_KEY) {
-        tempOpenAIClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      } else {
-        return res.status(500).json({ error: 'OpenAI API key required for embeddings' });
-      }
-
-      const embeddingResponse = await tempOpenAIClient.embeddings.create({
+      // Generate embedding for the user query using the OpenAI client (configured for Groq)
+      const embeddingResponse = await openaiClient.embeddings.create({
         model: "text-embedding-3-small",
         input: user_query
       });
@@ -290,12 +280,12 @@ app.post('/chat', async (req, res) => {
       sources = [{ source_file: "selected_text", content: selected_text }];
     }
 
-    // Generate the response using Groq
-    if (!groqClient) {
-      return res.status(500).json({ error: 'Groq client not available' });
+    // Generate the response using the OpenAI client (configured for Groq)
+    if (!openaiClient) {
+      return res.status(500).json({ error: 'OpenAI client not available' });
     }
 
-    const response = await groqClient.chat.completions.create({
+    const response = await openaiClient.chat.completions.create({
       model: "llama-3.3-70b-versatile", // Using the requested Groq model
       messages: [
         {
