@@ -258,6 +258,7 @@ async function getChatHistory(userId, limit = 10) {
 
 // Chat endpoint
 app.post('/chat', async (req, res) => {
+  console.log('API Request received at:', new Date().toISOString());
   try {
     const { user_query, user_id, selected_text } = req.body;
 
@@ -354,15 +355,20 @@ app.post('/chat', async (req, res) => {
   } catch (error) {
     console.error('Error in chat endpoint:', error);
     res.status(500).json({
-      error: 'Error processing chat request',
-      message: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 });
 
+// Test route
+app.get('/test', (req, res) => {
+  res.send('Backend is reachable');
+});
+
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on 0.0.0.0:${PORT}`);
 });
 
 module.exports = app;
