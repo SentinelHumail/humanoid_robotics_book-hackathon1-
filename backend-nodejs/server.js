@@ -86,20 +86,25 @@ if (process.env.OPENAI_API_KEY) {
 openaiClient = groqClient;
 
 // Initialize Qdrant client
-if (process.env.QDRANT_URL) {
-  const qdrantApiKey = process.env.QDRANT_API_KEY;
-  if (qdrantApiKey) {
-    qdrantClient = new QdrantClient({
-      url: process.env.QDRANT_URL,
-      apiKey: qdrantApiKey
-    });
+try {
+  if (process.env.QDRANT_URL) {
+    const qdrantApiKey = process.env.QDRANT_API_KEY;
+    if (qdrantApiKey) {
+      qdrantClient = new QdrantClient({
+        url: process.env.QDRANT_URL,
+        apiKey: qdrantApiKey
+      });
+    } else {
+      qdrantClient = new QdrantClient({
+        url: process.env.QDRANT_URL
+      });
+    }
   } else {
-    qdrantClient = new QdrantClient({
-      url: process.env.QDRANT_URL
-    });
+    console.warn('Warning: QDRANT_URL not set');
   }
-} else {
-  console.warn('Warning: QDRANT_URL not set');
+} catch (error) {
+  console.error('Error initializing Qdrant client:', error.message);
+  console.warn('Continuing without Qdrant - search functionality may be limited');
 }
 
 // Initialize PostgreSQL pool
@@ -266,24 +271,33 @@ app.post('/chat', async (req, res) => {
 
     if (!selected_text) {
       // Search Qdrant for relevant chunks
-      if (!qdrantClient || !embeddingClient) {
-        return res.status(500).json({ error: 'Required services (Qdrant/embedding) not available' });
+      if (!qdrantClient) {
+        return res.status(500).json({ error: 'Qdrant service not available' });
       }
 
-      // Generate embedding for the user query using the OpenAI client (for embeddings)
-      const embeddingResponse = await embeddingClient.embeddings.create({
-        model: "text-embedding-3-small",
-        input: user_query
-      });
+      if (!embeddingClient) {
+        return res.status(500).json({ error: 'Embedding service not available' });
+      }
 
-      const queryEmbedding = embeddingResponse.data[0].embedding;
+      try {
+        // Generate embedding for the user query using the OpenAI client (for embeddings)
+        const embeddingResponse = await embeddingClient.embeddings.create({
+          model: "text-embedding-3-small",
+          input: user_query
+        });
 
-      // Search Qdrant for top 3 most relevant chunks
-      const searchResults = await qdrantClient.search('book_embeddings', {
-        vector: queryEmbedding,
-        limit: 3,
-        with_payload: true
-      });
+        const queryEmbedding = embeddingResponse.data[0].embedding;
+
+        // Search Qdrant for top 3 most relevant chunks
+        const searchResults = await qdrantClient.search('book_embeddings', {
+          vector: queryEmbedding,
+          limit: 3,
+          with_payload: true
+        });
+      } catch (error) {
+        console.error('Error searching Qdrant:', error);
+        return res.status(500).json({ error: 'Error searching document database', details: error.message });
+      }
 
       // Build context from search results
       const contextParts = [];
@@ -303,9 +317,6 @@ app.post('/chat', async (req, res) => {
 
       // Combine the context
       context = contextParts.join('\n\n');
-    } else {
-      // Use selected text as context
-      sources = [{ source_file: "selected_text", content: selected_text }];
     }
 
     // Generate the response using the Groq client
