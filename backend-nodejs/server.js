@@ -4,8 +4,8 @@ const axios = require('axios');
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Import OpenAI
-const { OpenAI } = require('openai');
+// Import Groq
+const Groq = require('groq-sdk');
 
 // Import Qdrant
 const { QdrantClient } = require('qdrant-client');
@@ -48,15 +48,15 @@ app.use(cors({
 }));
 
 // Initialize clients
-let openaiClient = null;
+let groqClient = null;
 let qdrantClient = null;
 let ragService = null;
 
-// Initialize OpenAI client
-if (process.env.OPENAI_API_KEY) {
-  openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Initialize Groq client
+if (process.env.GROQ_API_KEY) {
+  groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
 } else {
-  console.warn('Warning: OPENAI_API_KEY not set');
+  console.warn('Warning: GROQ_API_KEY not set');
 }
 
 // Initialize Qdrant client
@@ -239,12 +239,21 @@ app.post('/chat', async (req, res) => {
 
     if (!selected_text) {
       // Search Qdrant for relevant chunks
-      if (!qdrantClient || !openaiClient) {
-        return res.status(500).json({ error: 'Required services (Qdrant/OpenAI) not available' });
+      if (!qdrantClient) {
+        return res.status(500).json({ error: 'Qdrant service not available' });
       }
 
-      // Generate embedding for the user query
-      const embeddingResponse = await openaiClient.embeddings.create({
+      // Since we need embeddings to search Qdrant, we'll use OpenAI for embeddings only
+      // Install and use OpenAI just for embeddings
+      const { OpenAI } = require('openai');
+      let tempOpenAIClient;
+      if (process.env.OPENAI_API_KEY) {
+        tempOpenAIClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      } else {
+        return res.status(500).json({ error: 'OpenAI API key required for embeddings' });
+      }
+
+      const embeddingResponse = await tempOpenAIClient.embeddings.create({
         model: "text-embedding-3-small",
         input: user_query
       });
@@ -281,14 +290,28 @@ app.post('/chat', async (req, res) => {
       sources = [{ source_file: "selected_text", content: selected_text }];
     }
 
-    // Use the RAG service to generate the answer with fallback options
-    const responseData = await ragService.generateAnswer(
-      user_query,
-      context,
-      selected_text
-    );
+    // Generate the response using Groq
+    if (!groqClient) {
+      return res.status(500).json({ error: 'Groq client not available' });
+    }
 
-    const aiAnswer = responseData.answer;
+    const response = await groqClient.chat.completions.create({
+      model: "llama-3.3-70b-versatile", // Using the requested Groq model
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert assistant for the book \"Physical AI & Humanoid Robotics\". Use the provided context to answer questions accurately. If the answer isn't in the context, politely say you don't know."
+        },
+        {
+          role: "user",
+          content: context
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.3
+    });
+
+    const aiAnswer = response.choices[0].message.content;
 
     // Save the chat interaction to the database
     await saveChat(user_id, user_query, aiAnswer, sources.map(source => source.source_file));
