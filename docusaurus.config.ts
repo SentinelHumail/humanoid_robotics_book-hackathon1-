@@ -19,6 +19,16 @@ const config: Config = {
     CHATBOT_API_URL: process.env.DOCUSAURUS_PUBLIC_API_URL || 'https://humanoid-robotics-book-hackathon1.onrender.com',
   },
 
+  headTags: [
+    {
+      tagName: 'meta',
+      attributes: {
+        'http-equiv': 'Content-Security-Policy',
+        content: "default-src 'self'; connect-src 'self' https://humanoid-robotics-book-hackathon1.onrender.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+      }
+    }
+  ],
+
 
   i18n: {
     defaultLocale: 'en',
