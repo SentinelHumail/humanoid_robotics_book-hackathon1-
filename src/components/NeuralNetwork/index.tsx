@@ -18,7 +18,7 @@ interface Connection {
 
 const NeuralNetwork = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(null!);
   const nodesRef = useRef<NetworkNode[]>([]);
   const connectionsRef = useRef<Connection[]>([]);
 

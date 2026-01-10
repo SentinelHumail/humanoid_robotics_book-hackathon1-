@@ -38,7 +38,7 @@ function HomepageHeader() {
             <div className={styles.buttons} style={{ marginTop: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <Link
                 className={styles.btnStart}
-                to="/docs/modules/module1-ros2"
+                to="/docs/modules/module1"
                 onMouseEnter={() => setIsHoveringButton(true)}
                 onMouseLeave={() => setIsHoveringButton(false)}
               >
@@ -64,7 +64,7 @@ function HomepageHeader() {
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home(): React.JSX.Element {
   const { siteConfig } = useDocusaurusContext();
 
   return (
@@ -80,7 +80,7 @@ export default function Home(): JSX.Element {
 
             <div className="tabloid-grid">
 
-              <Link to="/docs/modules/intro" className="cyber-tabloid">
+              <Link to="/docs/modules/module1" className="cyber-tabloid">
                 <div className="tabloid-header">
                   <h3>ROS 2 Nervous System</h3>
                   <span className="tabloid-number">01</span>
@@ -96,7 +96,7 @@ export default function Home(): JSX.Element {
                 <div className="tabloid-status">STATUS: ONLINE</div>
               </Link>
 
-              <Link to="/docs/modules/intro" className="cyber-tabloid">
+              <Link to="/docs/modules/module2" className="cyber-tabloid">
                 <div className="tabloid-header">
                   <h3>The Digital Twin</h3>
                   <span className="tabloid-number">02</span>
@@ -112,7 +112,7 @@ export default function Home(): JSX.Element {
                 <div className="tabloid-status">STATUS: ONLINE</div>
               </Link>
 
-              <Link to="/docs/modules/intro" className="cyber-tabloid">
+              <Link to="/docs/modules/module3" className="cyber-tabloid">
                 <div className="tabloid-header">
                   <h3>AI-Robot Brain</h3>
                   <span className="tabloid-number">03</span>
@@ -128,7 +128,7 @@ export default function Home(): JSX.Element {
                 <div className="tabloid-status">STATUS: LOADING...</div>
               </Link>
 
-              <Link to="/docs/modules/intro" className="cyber-tabloid">
+              <Link to="/docs/modules/module4" className="cyber-tabloid">
                 <div className="tabloid-header">
                   <h3>Matrix Vision</h3>
                   <span className="tabloid-number">04</span>
